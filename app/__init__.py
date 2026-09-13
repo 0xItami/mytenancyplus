@@ -1,0 +1,1 @@
+"""MyTenancyPlus application package."""

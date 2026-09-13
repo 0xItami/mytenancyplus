@@ -1,0 +1,11 @@
+CREATE ROLE mytenancyplus
+    LOGIN
+    PASSWORD 'mytenancyplus'
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT;
+
+GRANT CONNECT ON DATABASE mytenancyplus TO mytenancyplus;
+GRANT USAGE, CREATE ON SCHEMA public TO mytenancyplus;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
