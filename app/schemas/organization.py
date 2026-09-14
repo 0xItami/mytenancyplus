@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.models.organization import MembershipRole
+from app.models.organization import MembershipRole, MembershipStatus
 
 
 class OrganizationCreate(BaseModel):
@@ -34,3 +34,20 @@ class InvitationResponse(BaseModel):
     email: EmailStr
     role: MembershipRole
     expires_at: datetime
+    delivery_token: str | None = None
+
+
+class InvitationAcceptRequest(BaseModel):
+    token: str = Field(min_length=40, max_length=2000)
+
+
+class MembershipResponse(BaseModel):
+    organization_id: UUID
+    user_id: UUID
+    role: MembershipRole
+
+
+class MembershipDetailResponse(MembershipResponse):
+    email: EmailStr
+    full_name: str
+    status: MembershipStatus

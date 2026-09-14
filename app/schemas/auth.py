@@ -19,4 +19,14 @@ class UserResponse(BaseModel):
 
 class AccessTokenResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
+    expires_in: int
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(min_length=40, max_length=500)
+
+
+class LogoutRequest(RefreshTokenRequest):
+    pass

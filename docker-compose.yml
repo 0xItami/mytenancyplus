@@ -8,6 +8,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./migrations:/app/migrations
+      - document_data:/app/data/documents
     depends_on:
       postgres:
         condition: service_healthy
@@ -23,6 +24,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3002:80"
+    depends_on:
+      api:
+        condition: service_started
 
   postgres:
     image: postgres:17-alpine
@@ -57,3 +69,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  document_data:

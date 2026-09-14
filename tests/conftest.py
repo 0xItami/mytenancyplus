@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -11,8 +12,8 @@ from app.main import app
 
 
 @pytest_asyncio.fixture
-async def client(tmp_path: object) -> AsyncIterator[AsyncClient]:
-    database_path = str(tmp_path) + "/test.db"
+async def client(tmp_path: Path) -> AsyncIterator[AsyncClient]:
+    database_path = str(tmp_path / "test.db")
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with engine.begin() as connection:
@@ -30,6 +31,8 @@ async def client(tmp_path: object) -> AsyncIterator[AsyncClient]:
         environment="test",
         database_url=f"sqlite+aiosqlite:///{database_path}",
         jwt_secret="integration-test-secret-at-least-32-bytes",
+        billing_webhook_secret="test-billing-webhook-secret",
+        storage_root=str(tmp_path / "documents"),
     )
     app.dependency_overrides[get_db] = override_database
     app.dependency_overrides[get_settings] = lambda: test_settings

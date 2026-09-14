@@ -42,3 +42,38 @@ def decode_access_token(token: str, settings: Settings) -> UUID:
         return UUID(payload["sub"])
     except (jwt.PyJWTError, KeyError, TypeError, ValueError) as exc:
         raise InvalidTokenError("Invalid or expired access token") from exc
+
+
+def create_invitation_token(
+    *,
+    invitation_id: UUID,
+    organization_id: UUID,
+    token_id: str,
+    email: str,
+    expires_at: datetime,
+    settings: Settings,
+) -> str:
+    payload: dict[str, Any] = {
+        "sub": str(invitation_id),
+        "organization_id": str(organization_id),
+        "jti": token_id,
+        "email": email,
+        "exp": expires_at,
+        "type": "invitation",
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=ALGORITHM)
+
+
+def decode_invitation_token(token: str, settings: Settings) -> tuple[UUID, UUID, str, str]:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGORITHM])
+        if payload.get("type") != "invitation":
+            raise InvalidTokenError("Unexpected token type")
+        return (
+            UUID(payload["sub"]),
+            UUID(payload["organization_id"]),
+            str(payload["jti"]),
+            str(payload["email"]),
+        )
+    except (jwt.PyJWTError, KeyError, TypeError, ValueError) as exc:
+        raise InvalidTokenError("Invalid or expired invitation token") from exc
